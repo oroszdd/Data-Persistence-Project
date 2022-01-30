@@ -11,10 +11,10 @@ public class MainManager : MonoBehaviour
     public Rigidbody Ball;
 
     public Text ScoreText;
+    public Text HighScoreText;
     public GameObject GameOverText;
     
     private bool m_Started = false;
-    private int m_Points;
     
     private bool m_GameOver = false;
 
@@ -24,7 +24,12 @@ public class MainManager : MonoBehaviour
     {
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
-        
+
+        DataManager.Instance.LoadHighScore();
+
+        ScoreText.text = $"{DataManager.Instance.playerName} : 0";
+        HighScoreText.text = $"Best Score : {DataManager.Instance.highscorePlayerName} : {DataManager.Instance.highscoreScore}";
+
         int[] pointCountArray = new [] {1,1,2,2,5,5};
         for (int i = 0; i < LineCount; ++i)
         {
@@ -64,13 +69,29 @@ public class MainManager : MonoBehaviour
 
     void AddPoint(int point)
     {
-        m_Points += point;
-        ScoreText.text = $"Score : {m_Points}";
+        DataManager.Instance.score += point;
+        DisplayScore();
+        DisplayHighScore();
+    }
+    void DisplayScore()
+    {
+        ScoreText.text = $"{DataManager.Instance.playerName} : {DataManager.Instance.score}";
+    }
+
+    void DisplayHighScore()
+    {
+        if (DataManager.Instance.score > DataManager.Instance.highscoreScore)
+        {
+            DataManager.Instance.highscoreScore = DataManager.Instance.score;
+            DataManager.Instance.highscorePlayerName = DataManager.Instance.playerName;
+            HighScoreText.text = $"Best Score : {DataManager.Instance.highscorePlayerName} : {DataManager.Instance.highscoreScore}";
+        }
     }
 
     public void GameOver()
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+        DataManager.Instance.SaveHighScore();
     }
 }
